@@ -5,19 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 
-lateinit var viewModel: MainViewModel
-
 class MainActivity : ComponentActivity() {
-
     private val apiBaseUrl = "https://api.giphy.com/"
+    private val apiKey = "ВАШ_КЛЮЧ" //  https://giphy.com/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        val requestController = RetrofitController(apiBaseUrl)
-        val viewModelFactory = MainViewModel(requestController)
-        viewModel = viewModelFactory
+        val requestController = RetrofitController(apiBaseUrl, apiKey)
+        val viewModel= MainViewModel(requestController)
 
         setContent {
             viewModel.fetchTrendingGifs()

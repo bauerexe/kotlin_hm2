@@ -5,37 +5,30 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
+interface RequestController {
+    suspend fun fetchTrendingGifs(limit: Int = 5, offset: Int): Result<List<Data>>
+}
+
 class MainViewModel(private val requestController: RequestController) : ViewModel() {
-    val gifs = mutableStateOf<List<GifData>>(emptyList())
+    val gifs = mutableStateOf<List<Data>>(emptyList())
     val isLoading = mutableStateOf(false)
     val errorMessage = mutableStateOf<String?>(null)
     private var currentOffset = 0
     private val limit = 5
-    private var endReached = false
 
     fun fetchTrendingGifs(offset: Int = 0) {
         viewModelScope.launch {
             isLoading.value = true
-            val apiKey = "iKhtjMYD68PwiDe6lmgWQSJXoQyHbunq"
-            when (val result = requestController.fetchTrendingGifs(
-                apiKey = apiKey,
-                limit = limit,
-                offset = offset
-            )) {
+            val result = requestController.fetchTrendingGifs(limit = limit, offset = offset)
+
+            when (result) {
                 is Result.Ok -> {
-                    val data = result.data
-                    gifs.value = if (offset == 0) {
-                        data
-                    } else {
-                        gifs.value + data
-                    }
-                    endReached = data.isEmpty()
+                    gifs.value = if (offset == 0) result.data else gifs.value + result.data
                     currentOffset = offset + limit
                     errorMessage.value = null
                 }
-
                 is Result.Error -> {
-                    errorMessage.value = "Ошибка загрузки: ${result.error}"
+                    errorMessage.value = result.error
                 }
             }
             isLoading.value = false
@@ -43,7 +36,6 @@ class MainViewModel(private val requestController: RequestController) : ViewMode
     }
 
     fun loadNextPage() {
-        if (isLoading.value || endReached) return
-        fetchTrendingGifs(offset = currentOffset)
+        if (!isLoading.value) fetchTrendingGifs(offset = currentOffset)
     }
 }

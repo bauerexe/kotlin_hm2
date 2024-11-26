@@ -1,20 +1,23 @@
 package com.example.myapplication
 
+import com.google.gson.annotations.SerializedName
+
+
 data class GiphyResponse(
-    val data: List<GifData>
+    @SerializedName("data" ) var data : ArrayList<Data> = arrayListOf()
 )
 
-data class GifData(
-    val id: String,
-    val images: Images
+data class Data (
+    @SerializedName("id"     ) var id     : String? = null,
+    @SerializedName("images" ) var images : Images? = Images()
 )
 
-data class Images(
-    val original: Original
+data class Images (
+    @SerializedName("original" ) var original : Original? = Original()
 )
 
-data class Original(
-    val url: String,
-    val width: String,
-    val height: String
+data class Original (
+    @SerializedName("url"    ) var url    : String? = null,
+    @SerializedName("width"  ) var width  : String? = null,
+    @SerializedName("height" ) var height : String? = null
 )

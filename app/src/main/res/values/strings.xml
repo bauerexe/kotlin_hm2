@@ -1,5 +1,10 @@
 <resources>
-    <string name="app_name">My Application</string>
-    <string name="retry">Повторите попытку</string>
-    <string name="error_loading">Ошибка загрузки</string>
+    <string name="app_name">Gifs_HM</string>
+    <string name="list_mode">Список</string>
+    <string name="grid_mode">Таблица</string>
+    <string name="retry_button">Повторить</string>
+    <string name="error">Произошла ошибка</string>
+    <string name="error_with_server">Ошибка: Пустой ответ от сервера</string>
+    <string name="error_with_api">Ошибка: неверный API ключ</string>
+    <string name="error_with_gif">Ошибка при получении GIF</string>
 </resources>
