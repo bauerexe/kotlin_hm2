@@ -8,7 +8,15 @@ interface GiphyApiTrend {
     @GET("v1/gifs/trending")
     suspend fun getTrendingGIFs(
         @Query("api_key") apiKey: String,
-        @Query("limit") limit: Int = 5,
-        @Query("offset") offset: Int = 0,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int
+    ): Response<GiphyResponse>
+
+   @GET("v1/gifs/search")
+    suspend fun searchGIFs(
+        @Query("api_key") apiKey: String,
+        @Query("q") query: String,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int
     ): Response<GiphyResponse>
 }

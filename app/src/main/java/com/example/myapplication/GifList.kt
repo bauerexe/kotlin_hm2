@@ -10,10 +10,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,9 +49,10 @@ fun GifList(viewModel: MainViewModel) {
     }
 
     if (!viewModel.errorMessage.value.isNullOrEmpty()) {
-        viewModel.errorMessage.value?.let { ErrorText(it, onRetry = {viewModel.fetchTrendingGifs()}) }
-    } else{
+        viewModel.errorMessage.value?.let { ErrorText(it, onRetry = { viewModel.fetchTrendingGifs() }) }
+    } else {
         var displayMode by remember { mutableStateOf(DisplayMode.LIST) }
+        var searchQuery by remember { mutableStateOf("") }
 
         Column(modifier = Modifier.fillMaxSize()) {
             GifHeader()
@@ -64,7 +62,16 @@ fun GifList(viewModel: MainViewModel) {
             }
             DisplayModeButtons(
                 currentMode = displayMode,
-                onModeSelected = { mode -> displayMode = mode }
+                onModeSelected = { mode -> displayMode = mode },
+                searchQuery = searchQuery,
+                onSearchQueryChanged = { query -> searchQuery = query },
+                onSearchClicked = {
+                    if (searchQuery.isNotEmpty()) {
+                        viewModel.searchGifs(query = searchQuery)
+                    } else {
+                        viewModel.fetchTrendingGifs()
+                    }
+                }
             )
         }
     }
@@ -84,28 +91,52 @@ fun GifHeader() {
 }
 
 @Composable
-fun DisplayModeButtons(currentMode: DisplayMode, onModeSelected: (DisplayMode) -> Unit) {
-    val buttons = listOf(
-        stringResource(id = R.string.list_mode) to DisplayMode.LIST,
-        stringResource(id = R.string.grid_mode) to DisplayMode.GRID
-    )
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        buttons.forEach { (text, mode) ->
-            Button(
-                onClick = { onModeSelected(mode) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (currentMode == mode)  Color(0xFF6200EE) else Color.Gray,
-                    contentColor = Color.White
-                )
-            ) {
-                Text(text = text)
+fun DisplayModeButtons(
+    currentMode: DisplayMode,
+    onModeSelected: (DisplayMode) -> Unit,
+    searchQuery: String,
+    onSearchQueryChanged: (String) -> Unit,
+    onSearchClicked: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val buttons = listOf(
+                stringResource(id = R.string.list_mode) to DisplayMode.LIST,
+                stringResource(id = R.string.grid_mode) to DisplayMode.GRID
+            )
+            buttons.forEach { (text, mode) ->
+                Button(
+                    onClick = { onModeSelected(mode) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (currentMode == mode) Color(0xFF6200EE) else Color.Gray,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(text = text)
+                }
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            TextField(
+                value = searchQuery,
+                onValueChange = onSearchQueryChanged,
+                modifier = Modifier.weight(1f),
+                placeholder = { Text("Введите запрос") }
+            )
+            Button(onClick = onSearchClicked) {
+                Text("Поиск")
             }
         }
     }

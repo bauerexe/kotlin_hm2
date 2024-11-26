@@ -11,21 +11,21 @@ class RetrofitController(apiBaseUrl: String, private val apiKey: String) : Reque
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    private val giphyApi = retrofit.create(GiphyApiTrend::class.java)
+    private val giphyApi= retrofit.create(GiphyApiTrend::class.java)
 
     override suspend fun fetchTrendingGifs(limit: Int, offset: Int): Result<List<Data>> {
         return try {
             val response: Response<GiphyResponse> = giphyApi.getTrendingGIFs(
                 apiKey = apiKey,
                 limit = limit,
-                offset = offset
+                offset = offset,
             )
 
             if (response.isSuccessful) {
                 response.body()?.let {
                     return Result.Ok(it.data)
                 } ?: run {
-                     Result.Error(R.string.error_with_server.toString())
+                    Result.Error(R.string.error_with_server.toString())
                 }
             } else {
                 Result.Error("${R.string.error_with_api} (код: ${response.code()})")
@@ -34,4 +34,28 @@ class RetrofitController(apiBaseUrl: String, private val apiKey: String) : Reque
             Result.Error("${R.string.error_with_gif}: ${e.message}")
         }
     }
+
+    override suspend fun serchGifs(limit: Int, offset: Int, query: String): Result<List<Data>> {
+        return try {
+            val response: Response<GiphyResponse> = giphyApi.searchGIFs(
+                apiKey = apiKey,
+                query = query,
+                limit = limit,
+                offset = offset
+            )
+
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    return Result.Ok(it.data)
+                } ?: run {
+                    Result.Error(R.string.error_with_server.toString())
+                }
+            } else {
+                Result.Error("${R.string.error_with_api} (код: ${response.code()})")
+            }
+        } catch (e: Exception) {
+            Result.Error("${R.string.error_with_gif}: ${e.message}")
+        }
+    }
+
 }
